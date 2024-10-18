@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>댓글과 답글 기능</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        h1 {
+            color: #333;
+        }
+        .comment-container {
+            margin-bottom: 30px;
+        }
+        .comment {
+            margin-bottom: 20px;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 10px;
+        }
+        .reply {
+            margin-left: 20px;
+            margin-top: 10px;
+        }
+        textarea {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>댓글과 답글</h1>
+
+    <div id="commentSection" class="comment-container">
+        <!-- 댓글 목록이 표시되는 곳 -->
+    </div>
+
+    <h2>댓글 달기</h2>
+    <textarea id="newComment" placeholder="댓글을 입력하세요..."></textarea>
+    <button onclick="addComment()">댓글 작성</button>
+
+    <script>
+        // 댓글 리스트 저장소
+        let comments = [];
+
+        // 댓글 추가 함수
+        function addComment() {
+            const commentText = document.getElementById('newComment').value;
+            if (commentText.trim() === '') {
+                alert('댓글을 입력하세요.');
+                return;
+            }
+            const newComment = {
+                id: Date.now(),
+                text: commentText,
+                replies: []
+            };
+            comments.push(newComment);
+            document.getElementById('newComment').value = ''; // 입력란 초기화
+            renderComments();
+        }
+
+        // 답글 추가 함수
+        function addReply(commentId) {
+            const replyText = document.getElementById(`replyText_${commentId}`).value;
+            if (replyText.trim() === '') {
+                alert('답글을 입력하세요.');
+                return;
+            }
+            const newReply = {
+                id: Date.now(),
+                text: replyText
+            };
+            const comment = comments.find(c => c.id === commentId);
+            comment.replies.push(newReply);
+            document.getElementById(`replyText_${commentId}`).value = ''; // 입력란 초기화
+            renderComments();
+        }
+
+        // 댓글과 답글 렌더링 함수
+        function renderComments() {
+            const commentSection = document.getElementById('commentSection');
+            commentSection.innerHTML = ''; // 기존 댓글 목록 초기화
+
+            comments.forEach(comment => {
+                // 댓글 HTML 생성
+                const commentDiv = document.createElement('div');
+                commentDiv.classList.add('comment');
+                commentDiv.innerHTML = `
+                    <p>${comment.text}</p>
+                    <textarea id="replyText_${comment.id}" placeholder="답글을 입력하세요..."></textarea>
+                    <button onclick="addReply(${comment.id})">답글 작성</button>
+                    <div class="reply-section" id="replySection_${comment.id}"></div>
+                `;
+
+                // 답글 렌더링
+                const replySection = commentDiv.querySelector(`#replySection_${comment.id}`);
+                comment.replies.forEach(reply => {
+                    const replyDiv = document.createElement('div');
+                    replyDiv.classList.add('reply');
+                    replyDiv.innerHTML = `<p>${reply.text}</p>`;
+                    replySection.appendChild(replyDiv);
+                });
+
+                // 댓글을 댓글 섹션에 추가
+                commentSection.appendChild(commentDiv);
+            });
+        }
+    </script>
+
+</body>
+</html>
